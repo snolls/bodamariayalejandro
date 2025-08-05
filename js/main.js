@@ -28,155 +28,146 @@ document.addEventListener("DOMContentLoaded", () => {
     const grid = document.querySelector('.photo-grid');
     const imgs = document.querySelectorAll('.photo-grid img');
 
-    const gridObserver = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                grid.style.opacity = 1;
-                grid.style.transform = 'scale(1)';
-                imgs.forEach((img, i) => {
-                    img.style.transitionDelay = `${i * 100}ms`;
-                    img.style.transform = `rotate(${(i % 2 === 0 ? '-' : '') + (10 + i * 2)}deg) translate(${i * 5}px, ${i * 5}px)`;
-                });
-            } else {
-                grid.style.opacity = 0;
-                grid.style.transform = 'scale(0.8)';
-                imgs.forEach(img => {
-                    img.style.transitionDelay = '0ms';
-                    img.style.transform = 'none';
-                });
-            }
-        });
-    }, { threshold: 0.3 });
+    if (grid) {
+        const gridObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    grid.style.opacity = 1;
+                    grid.style.transform = 'scale(1)';
+                    imgs.forEach((img, i) => {
+                        img.style.transitionDelay = `${i * 100}ms`;
+                        img.style.transform = `rotate(${(i % 2 === 0 ? '-' : '') + (10 + i * 2)}deg) translate(${i * 5}px, ${i * 5}px)`;
+                    });
+                } else {
+                    grid.style.opacity = 0;
+                    grid.style.transform = 'scale(0.8)';
+                    imgs.forEach(img => {
+                        img.style.transitionDelay = '0ms';
+                        img.style.transform = 'none';
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
 
-    gridObserver.observe(grid);
+        gridObserver.observe(grid);
+    }
 
     // === 🃏 MOSAICO REVERSIBLE: CARTAS → GRID CENTRADO ===
     const cards = document.querySelectorAll('.mosaic .card');
     const mosaicContainer = document.querySelector('.mosaic-container');
 
-    const cardWidth = 250;
-    const spacing = 20;
-    const columns = 3;
+    if (mosaicContainer && cards.length > 0) {
+        const cardWidth = 250;
+        const spacing = 20;
+        const columns = 3;
 
-    const mosaicObserver = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // Paso 1: apilar estilo cartas centrado dentro del contenedor
-                const baseTop = 80;
-                const baseLeft = (mosaicContainer.offsetWidth - cardWidth) / 2;
-
-                cards.forEach((card, i) => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.transitionDelay = `${i * 200}ms`;
-                    card.style.opacity = 1;
-                    card.style.position = 'absolute';
-                    card.style.left = `${baseLeft}px`;
-                    card.style.top = `${baseTop + i * 5}px`;
-                    card.style.transform = `scale(1) rotate(${(i - 3) * 8}deg)`;
-                    card.style.zIndex = i;
-                });
-
-                // Paso 2: después, reordenar en grid centrado
-                setTimeout(() => {
-                    const containerWidth = mosaicContainer.offsetWidth;
-                    const totalGridWidth = columns * (cardWidth + spacing) - spacing;
-                    const startX = (containerWidth - totalGridWidth) / 2;
+        const mosaicObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Paso 1: apilar estilo cartas centrado dentro del contenedor
+                    const baseTop = 80;
+                    const baseLeft = (mosaicContainer.offsetWidth - cardWidth) / 2;
 
                     cards.forEach((card, i) => {
-                        const row = Math.floor(i / columns);
-                        const col = i % columns;
-                        const x = startX + col * (cardWidth + spacing);
-                        const y = row * (cardWidth + spacing);
+                        card.style.transition = 'all 0.6s ease';
+                        card.style.transitionDelay = `${i * 200}ms`;
+                        card.style.opacity = 1;
+                        card.style.position = 'absolute';
+                        card.style.left = `${baseLeft}px`;
+                        card.style.top = `${baseTop + i * 5}px`;
+                        card.style.transform = `scale(1) rotate(${(i - 3) * 8}deg)`;
+                        card.style.zIndex = i;
+                    });
 
-                        card.style.transition = 'all 0.8s ease';
-                        card.style.left = `${x}px`;
-                        card.style.top = `${y}px`;
-                        card.style.transform = 'scale(1) rotate(0deg)';
+                    // Paso 2: después, reordenar en grid centrado
+                    setTimeout(() => {
+                        const containerWidth = mosaicContainer.offsetWidth;
+                        const totalGridWidth = columns * (cardWidth + spacing) - spacing;
+                        const startX = (containerWidth - totalGridWidth) / 2;
+
+                        cards.forEach((card, i) => {
+                            const row = Math.floor(i / columns);
+                            const col = i % columns;
+                            const x = startX + col * (cardWidth + spacing);
+                            const y = row * (cardWidth + spacing);
+
+                            card.style.transition = 'all 0.8s ease';
+                            card.style.left = `${x}px`;
+                            card.style.top = `${y}px`;
+                            card.style.transform = 'scale(1) rotate(0deg)';
+                            card.style.zIndex = 0;
+                        });
+                    }, cards.length * 200 + 300);
+                } else {
+                    // Reset al salir del viewport
+                    cards.forEach((card, i) => {
+                        card.style.transition = 'all 0.4s ease';
+                        card.style.transitionDelay = '0ms';
+                        card.style.opacity = 0;
+                        card.style.left = '50%';
+                        card.style.top = '50%';
+                        card.style.transform = 'translate(-50%, -50%) scale(0.5) rotate(0deg)';
                         card.style.zIndex = 0;
                     });
-                }, cards.length * 200 + 300);
-            } else {
-                // Reset al salir del viewport
-                cards.forEach((card, i) => {
-                    card.style.transition = 'all 0.4s ease';
-                    card.style.transitionDelay = '0ms';
-                    card.style.opacity = 0;
-                    card.style.left = '50%';
-                    card.style.top = '50%';
-                    card.style.transform = 'translate(-50%, -50%) scale(0.5) rotate(0deg)';
-                    card.style.zIndex = 0;
-                });
-            }
-        });
-    }, { threshold: 0.3 });
+                }
+            });
+        }, { threshold: 0.3 });
 
-    mosaicObserver.observe(mosaicContainer);
+        mosaicObserver.observe(mosaicContainer);
+    }
 
     // === 📩 FORMULARIO CON GOOGLE SHEETS ===
+    // Solo recoge nombre, asistencia y alergias (sin niños ni cantidad)
     const form = document.getElementById("rsvp-form");
     const asistencia = document.getElementById("asistencia");
-    const grupoNinos = document.getElementById("grupo-ninos");
-    const ninos = document.getElementById("ninos");
-    const grupoCantidad = document.getElementById("grupo-cantidad");
-    const cantidadNinos = document.getElementById("cantidad-ninos");
     const status = document.getElementById("form-status");
     const grupoAlergias = document.getElementById("grupo-alergias");
 
-    // Mostrar/Ocultar "alergenos" y ¿Vienes con niños? según asistencia
-    asistencia.addEventListener("change", () => {
-        if (asistencia.value === "Sí") {
-            grupoNinos.style.display = "block";
-            grupoAlergias.style.display = "block";
-        } else {
-            grupoNinos.style.display = "none";
-            grupoCantidad.style.display = "none";
-            grupoAlergias.style.display = "none";
-            ninos.value = "";
-            cantidadNinos.value = "";
-        }
-    });
-
-    // Mostrar/Ocultar "Cantidad de niños" según respuesta
-    ninos.addEventListener("change", () => {
-        if (ninos.value === "Sí") {
-            grupoCantidad.style.display = "block";
-            cantidadNinos.required = true;
-        } else {
-            grupoCantidad.style.display = "none";
-            cantidadNinos.required = false;
-            cantidadNinos.value = "";
-        }
-    });
-
-    // Envío a Google Sheets
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const data = new FormData(form);
-        const url = "https://script.google.com/macros/s/AKfycbzZ93MJo51Je_cfS2LxJg3Dp2_38p5x6JbFbEGTEEFRNZdhq4GqKRhTPGIUOv56P77hww/exec";
-
-        try {
-            const res = await fetch(url, {
-                method: "POST",
-                body: data,
-            });
-
-            if (res.ok) {
-                status.textContent = "✅ ¡Gracias por confirmar!";
-                form.reset();
-                grupoNinos.style.display = "none";
-                grupoCantidad.style.display = "none";
+    if (form && asistencia && grupoAlergias && status) {
+        // Muestra el campo de alergias solo si el usuario confirma asistencia
+        asistencia.addEventListener("change", () => {
+            if (asistencia.value === "Sí") {
+                grupoAlergias.style.display = "block";
             } else {
-                status.textContent = "⚠️ Error al enviar. Inténtalo de nuevo.";
+                grupoAlergias.style.display = "none";
+                const alergias = document.getElementById("alergias");
+                if (alergias) alergias.value = "";
             }
-        } catch (err) {
-            status.textContent = "❌ Error de red. Revisa tu conexión.";
-        }
-    });
+        });
 
+        // Envía el formulario a Google Sheets usando un Google Apps Script
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            status.textContent = "Enviando...";
+            status.style.color = "#444";
+
+            const data = new FormData(form);
+            const url = "https://script.google.com/macros/s/AKfycbzZ93MJo51Je_cfS2LxJg3Dp2_38p5x6JbFbEGTEEFRNZdhq4GqKRhTPGIUOv56P77hww/exec";
+
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    body: data,
+                });
+
+                if (res.ok) {
+                    status.textContent = "✅ ¡Gracias por confirmar!";
+                    status.style.color = "green";
+                    form.reset();
+                    grupoAlergias.style.display = "none";
+                } else {
+                    status.textContent = "⚠️ Error al enviar. Inténtalo de nuevo.";
+                    status.style.color = "red";
+                }
+            } catch (err) {
+                status.textContent = "❌ Error de red. Revisa tu conexión.";
+                status.style.color = "red";
+            }
+        });
+    }
 });
 
-
-// Scroll automático del carrusel
+// === Scroll automático del carrusel ===
 document.addEventListener("DOMContentLoaded", function () {
     const carousel = document.getElementById("mosaic-carousel");
     let scrollAmount = 0;
@@ -195,7 +186,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setInterval(autoScroll, 30); // Ajusta la velocidad aquí
 });
-
 
 // === Updated auto-scroll speed ===
 document.addEventListener("DOMContentLoaded", function () {
@@ -216,7 +206,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setInterval(autoScroll, 20); // Menor intervalo = más rápido
 });
-
 
 // === Fluido Scroll Automático con requestAnimationFrame ===
 document.addEventListener("DOMContentLoaded", function () {
@@ -266,50 +255,4 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     setInterval(moveSlider, 3000); // cada 3 segundos
-});
-
-// === Lógica del formulario ===
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("rsvp-form");
-    const status = document.getElementById("form-status");
-    const asistencia = document.getElementById("asistencia");
-    const grupoAlergias = document.getElementById("grupo-alergias");
-
-    asistencia.addEventListener("change", () => {
-        const val = asistencia.value;
-        if (val === "Sí") {
-            grupoAlergias.style.display = "block";
-        } else {
-            grupoAlergias.style.display = "none";
-        }
-    });
-
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        status.textContent = "Enviando...";
-        status.style.color = "#444";
-
-        const formData = new FormData(form);
-        fetch("https://script.google.com/macros/s/AKfycbzZ93MJo51Je_cfS2LxJg3Dp2_38p5x6JbFbEGTEEFRNZdhq4GqKRhTPGIUOv56P77hww/exec", {
-            method: "POST",
-            body: formData
-        })
-        .then(res => {
-            if (res.ok) {
-                status.textContent = "✅ Formulario enviado correctamente";
-                status.style.color = "green";
-                form.reset();
-                grupoNinos.style.display = "none";
-                grupoCantidad.style.display = "none";
-                grupoAlergias.style.display = "none";
-            } else {
-                throw new Error("Error de envío");
-            }
-        })
-        .catch(err => {
-            status.textContent = "❌ Error al enviar. Inténtalo de nuevo.";
-            status.style.color = "red";
-            console.error(err);
-        });
-    });
 });
