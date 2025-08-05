@@ -273,38 +273,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("rsvp-form");
     const status = document.getElementById("form-status");
     const asistencia = document.getElementById("asistencia");
-    const ninos = document.getElementById("ninos");
-    const cantidad = document.getElementById("cantidad");
-    const grupoNinos = document.getElementById("grupo-ninos");
-    const grupoCantidad = document.getElementById("grupo-cantidad");
     const grupoAlergias = document.getElementById("grupo-alergias");
 
     asistencia.addEventListener("change", () => {
         const val = asistencia.value;
         if (val === "Sí") {
-            grupoNinos.style.display = "block";
             grupoAlergias.style.display = "block";
-            ninos.required = true;
         } else {
-            grupoNinos.style.display = "none";
             grupoAlergias.style.display = "none";
-            grupoCantidad.style.display = "none";
-            ninos.value = "";
-            cantidad.value = "";
-            ninos.required = false;
-            cantidad.required = false;
-        }
-    });
-
-    ninos.addEventListener("change", () => {
-        const val = ninos.value;
-        if (val === "Sí") {
-            grupoCantidad.style.display = "block";
-            cantidad.required = true;
-        } else {
-            grupoCantidad.style.display = "none";
-            cantidad.value = "";
-            cantidad.required = false;
         }
     });
 
